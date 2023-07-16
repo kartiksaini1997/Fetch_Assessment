@@ -1,0 +1,104 @@
+Data Quality Issues Queries
+
+Users table
+
+Check for NULL or missing values:
+SELECT 
+    COUNT(*) FILTER (WHERE _id IS NULL) AS missing_id,
+    COUNT(*) FILTER (WHERE active IS NULL) AS missing_active,
+    COUNT(*) FILTER (WHERE createdDate IS NULL) AS missing_createdDate,
+    COUNT(*) FILTER (WHERE lastLogin IS NULL) AS missing_lastLogin,
+    COUNT(*) FILTER (WHERE role IS NULL) AS missing_role,
+    COUNT(*) FILTER (WHERE signUpSource IS NULL) AS missing_signUpSource,
+    COUNT(*) FILTER (WHERE state IS NULL) AS missing_state
+FROM users;
+
+Check for duplicates in the ID field:
+SELECT _id, COUNT(*) 
+FROM users 
+GROUP BY _id 
+HAVING COUNT(*) > 1;
+
+Check for data type inconsistencies (for example, assuming the 'active' column should only contain boolean values):
+SELECT COUNT(*)
+FROM users 
+WHERE active NOT IN (false, true);
+
+Check for records where 'lastLogin' date is prior to 'createdDate':
+SELECT COUNT(*)
+FROM users 
+WHERE lastLogin < createdDate;
+
+Check for invalid 'state' codes (assuming USA state codes):
+SELECT COUNT(*)
+FROM users 
+WHERE length(state) <> 2;
+
+
+Receipts Table
+
+Check for NULL or missing values:
+SELECT 
+    COUNT(*) FILTER (WHERE _id IS NULL) AS missing_id,
+    COUNT(*) FILTER (WHERE bonusPointsEarned IS NULL) AS missing_bonusPointsEarned,
+    COUNT(*) FILTER (WHERE createDate IS NULL) AS missing_createDate,
+    COUNT(*) FILTER (WHERE dateScanned IS NULL) AS missing_dateScanned,
+    COUNT(*) FILTER (WHERE finishedDate IS NULL) AS missing_finishedDate,
+    COUNT(*) FILTER (WHERE modifyDate IS NULL) AS missing_modifyDate,
+    COUNT(*) FILTER (WHERE pointsAwardedDate IS NULL) AS missing_pointsAwardedDate,
+    COUNT(*) FILTER (WHERE pointsEarned IS NULL) AS missing_pointsEarned,
+    COUNT(*) FILTER (WHERE purchaseDate IS NULL) AS missing_purchaseDate,
+    COUNT(*) FILTER (WHERE purchasedItemCount IS NULL) AS missing_purchasedItemCount,
+    COUNT(*) FILTER (WHERE rewardsReceiptStatus IS NULL) AS missing_rewardsReceiptStatus,
+    COUNT(*) FILTER (WHERE totalSpent IS NULL) AS missing_totalSpent,
+    COUNT(*) FILTER (WHERE userId IS NULL) AS missing_userId
+FROM receipts;
+
+Check for records where purchaseDate is in the future:
+SELECT COUNT(*)
+FROM receipts 
+WHERE purchaseDate > CURRENT_TIMESTAMP;
+
+Check if purchasedItemCount doesn't match with count of items in rewardsReceiptItemList:
+SELECT COUNT(*)
+FROM receipts 
+WHERE purchasedItemCount <> (SELECT COUNT(*) FROM rewardsReceiptItemList WHERE receipts._id = rewardsReceiptItemList.receipt_id);
+
+Check if pointsEarned is less than bonusPointsEarned:
+SELECT COUNT(*)
+FROM receipts 
+WHERE pointsEarned < bonusPointsEarned;
+
+
+Brands Table:
+
+Check for NULL or missing values:
+SELECT 
+    COUNT(*) FILTER (WHERE _id IS NULL) AS missing_id,
+    COUNT(*) FILTER (WHERE barcode IS NULL) AS missing_barcode,
+    COUNT(*) FILTER (WHERE category IS NULL) AS missing_category,
+    COUNT(*) FILTER (WHERE categoryCode IS NULL) AS missing_categoryCode,
+    COUNT(*) FILTER (WHERE brandCode IS NULL) AS missing_brandCode,
+    COUNT(*) FILTER (WHERE name IS NULL) AS missing_name,
+    COUNT(*) FILTER (WHERE topBrand IS NULL) AS missing_topBrand
+FROM brands;
+
+Check for duplicate barcodes:
+SELECT barcode, COUNT(*)
+FROM brands 
+GROUP BY barcode 
+HAVING COUNT(*) > 1;
+
+Check for records where barcode is NULL:
+SELECT COUNT(*)
+FROM brands 
+WHERE barcode IS NULL;
+
+Check for records where name is NULL:
+SELECT COUNT(*)
+FROM brands 
+WHERE name IS NULL;
+
+
+
+
